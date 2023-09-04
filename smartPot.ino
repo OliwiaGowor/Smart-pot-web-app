@@ -157,7 +157,7 @@ uint8_t WiFiConnect(const char *nSSID = nullptr, const char *nPassword = nullptr
   lcd.setCursor(0, 0);
   lcd.println("Connected!      ");
   lcd.setCursor(0, 1);
-  lcd.print("IP: " + String(WiFi.localIP()));
+  lcd.print("IP:" + WiFi.localIP().toString());
   Serial.println(WiFi.localIP());
   delay(2000);
   return true;
