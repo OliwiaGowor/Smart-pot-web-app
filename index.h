@@ -148,15 +148,20 @@ border-radius: 50%%;
   margin: 10px 20px;
 }
 #setHumidity>input{
-width:60%%;
-margin-right: 20px;
+  width:60%%;
+  margin-right: 20px;
 }
 #setHumidity>output{
-justify-content: center;
+  justify-content: center;
 }
 
 #minHumidityValue{
   width: fit-content;
+}
+
+.awayModeButton {
+  display: inline;
+  padding: 0;
 }
 
 </style>
@@ -169,7 +174,7 @@ justify-content: center;
 <body>
   <div class="card">
   %AWAYMODEPLACEHOLDER%
-  <button onClick="setAwayModeInterval()">Submit</button>
+  <button class="awayModeButton" onClick="setAwayModeInterval()">Submit</button>
   </div>
   
   <div class="card">
@@ -203,8 +208,7 @@ function toggleAwayMode(element) {
 function setAwayModeInterval() {
   var xhr = new XMLHttpRequest();
   const element = document.getElementById("awayModeValue");
-  console.log(element.value);
-  if(element.value){ xhr.open("GET", "/setHumidity?value="+element.value); 
+  if(element.value){ xhr.open("GET", "/awayModeInterval?value="+element.value); 
     xhr.send();
   }
 }
@@ -212,7 +216,6 @@ function setAwayModeInterval() {
 function setMinHumidity() {
   var xhr = new XMLHttpRequest();
   const element = document.getElementById("minHumidityValue");
-  console.log(element.value);
   if(element.value){ xhr.open("GET", "/setHumidity?value="+element.value); 
     xhr.send();
   }

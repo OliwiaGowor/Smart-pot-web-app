@@ -24,7 +24,9 @@ int minHumidity = 30;
 long duration;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int counter = 0;
+int counterAwayMode = 0;
 bool awayMode = false;
+bool pumpOn = false;
 int awayModeInterval = 120000;
 #pragma endregion Globals
  
@@ -33,10 +35,10 @@ String processor(const String& var){
   if(var == "AWAYMODEPLACEHOLDER"){
     String data = "";
     data += "<p>Away mode: <label class=\"switch\"><input type=\"checkbox\" id=\"auto-mode\" onChange=\"toggleAwayMode(this)\" " + String(awayMode ? "checked" : "") + "/><span class=\"slider round\"></span></label></p><br>";
-    data += "<p>Frequency: <input id=\"frequency\" type=\"text\" oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');\" value=" + String(awayModeInterval) + " /></p>"; 
+    data += "<p>Frequency(s): <input id=\"awayModeValue\" type=\"text\" oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');\" value=" + String(awayModeInterval) + " /></p>"; 
     return data;
   } else if(var == "PUMPPLACEHOLDER"){
-    return "<label class=\"switch\"><input type=\"checkbox\" id=\"toggle-pump\" onChange=\"togglePump(this)\" " + String(digitalRead(D13) ? "checked" : "") + "/><span class=\"slider round\"></span></label><br>";
+    return "<label class=\"switch\"><input type=\"checkbox\" id=\"toggle-pump\" onChange=\"togglePump(this)\" " + String(pumpOn ? "checked" : "") + "/><span class=\"slider round\"></span></label><br>";
   } else if (var == "SETHUMIDITYPLACEHOLDER") {
     return "<div id=\"setHumidity\"><input type=\"range\" id=\"minHumidityValue\" min=\"0\" max=\"100\" value=" + String(minHumidity) + " oninput=\"this.nextElementSibling.value = this.value\" onChange=\"setMinHumidity()\" /><output>"  + String(minHumidity) + "</output></div>"; 
   } 
@@ -55,6 +57,7 @@ void checkHumidity() {
     lcd.print("Wilgotnosc:");
 
     while (((4095 - analogRead(A2)) / 28) < minHumidity) {
+      pumpOn = true;
       digitalWrite(D13, HIGH);
       lcd.setCursor(11, 1);
       lcd.print((4095 - analogRead(A2)) / 28);
@@ -64,9 +67,10 @@ void checkHumidity() {
       }
       counterHum ++;
       delay(1000);
-    }
-  }
+    }  pumpOn = false;
   digitalWrite(D13, LOW);
+  }
+
 }
 
 // Function to read light level and return the value
@@ -97,11 +101,13 @@ float getDistance() {
 
 void handleAwayMode(float humidity, String lightLvl, float distanceCm) {      
   //Check if enough time passed to send the notification again
-  if(awayMode && counter == awayModeInterval) {
-    sendInfo("smiw.kowalski@interia.pl", humidity, lightLvl, distanceCm);
-    counter = 0;
-  }
-  counter++;
+  if(awayMode) {
+    counterAwayMode++;
+    if(counterAwayMode == awayModeInterval) {
+      sendInfo("smiw.kowalski@interia.pl", humidity, lightLvl, distanceCm);
+      counterAwayMode = 0;
+    }
+  } 
 }
 
 // Function to establish a WiFi connection
@@ -151,7 +157,7 @@ uint8_t WiFiConnect(const char *nSSID = nullptr, const char *nPassword = nullptr
   lcd.setCursor(0, 0);
   lcd.println("Connected!      ");
   lcd.setCursor(0, 1);
-  lcd.print("IP: " + WiFi.localIP());
+  lcd.print("IP: " + String(WiFi.localIP()));
   Serial.println(WiFi.localIP());
   delay(2000);
   return true;
@@ -207,8 +213,10 @@ void setup() {
         inputMessage1 = request->getParam(PARAM_INPUT_STATE)->value();
         if(inputMessage1 == "1") {
           awayMode = true;
+          counterAwayMode = 0;
         } else if(inputMessage1 == "0") {
           awayMode = false;
+          counterAwayMode = 0;
         }
       }
       request->send(200, "text/plain", "OK");
@@ -217,8 +225,9 @@ void setup() {
     // Send a GET request to <ESP_IP>/awayModeInterval?value=<inputMessage1>
     server.on("/awayModeInterval", HTTP_GET, [] (AsyncWebServerRequest *request) {
       // GET input1 value on <ESP_IP>/awayModeInterval?value=<inputMessage1>
-      if (request->hasParam(PARAM_INPUT_VALUE) && request->hasParam(PARAM_INPUT_STATE)) {
+      if (request->hasParam(PARAM_INPUT_VALUE)) {
         awayModeInterval = (request->getParam(PARAM_INPUT_VALUE)->value()).toInt() / 4; //because program loop is 4 seconds
+        counterAwayMode = 0;
       }
       request->send(200, "text/plain", "OK");
     });
@@ -230,8 +239,10 @@ void setup() {
       if (request->hasParam(PARAM_INPUT_STATE)) {
         inputMessage1 = request->getParam(PARAM_INPUT_STATE)->value();
         if(inputMessage1 == "1") {
+          pumpOn = true;
           digitalWrite(D13, HIGH);
         } else if(inputMessage1 == "0") {
+          pumpOn = false;
           digitalWrite(D13, LOW);
         }
       }
@@ -295,6 +306,6 @@ void loop() {
   lcd.print("(od czujnika)");
 
   handleAwayMode(humidity, lightLvl, distanceCm);
-  
+
   delay(2000);
 }
