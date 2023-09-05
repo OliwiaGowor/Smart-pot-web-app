@@ -1,89 +1,83 @@
 # Smart pot
-
-## Cel projektu
-  Celem projektu jest stworzenie systemu umożliwiającego automatyzację nawadniania kwiatów. Będzie on kontrolowany przez czujniki wilgotności gleby oraz natężenia światła. W określonych warunkach ma uruchamiać się moduł nawadniający. Parametry systemu oraz komunikaty o warunkach panujących w pobliżu rośliny będą pokazywane za pomocą aplikacji Webowej, wysyłane w formie powiadomienia na pocztę e-mail oraz wyświetlane na wyświetlaczu dołączonym do układu. Jedyna wymagana ingerencja użytkownika ma polegać na uzupełnianiu zbiornika z wodą oraz ewentualnej zmianie domyślnych ustawień.
+  The system is designed to control soil moisture in a pot and the light intensity near the plant using appropriate sensors. When the soil moisture drops below a specified level, a small water pump will be activated. The system also includes a distance sensor, which should be placed above the water tank to determine the water level. Current parameters and information about plant watering is displayed in a web application, on the display, and sent to the user as email notifications.
 
 
 
-## Wymagania funkcjonalne
-  Celem układu jest kontrolowanie wilgotności gleby w doniczce oraz natężenia światła w pobliżu rośliny za pomocą odpowiednich czujników. W przypadku, gdy wilgotność gleby spadnie poniżej określonego poziomu, uruchomiona zostanie mała pompka wodna. System zawiera także czujnik odległości. Umieszczony powinien być on nad zbiornikiem z wodą w celu określenia poziomu wody. Aktualne parametry oraz informacje o podlaniu rośliny wyświetlane są w aplikacji Webowej, na wyświetlaczu oraz wysyłane do użytkownika w postaci powiadomienia na skrzynkę mailową. Układ zbudowany jest na bazie mikroprocesora ESP32. Zasilany jest sieciowo, a w przypadku braku prądu, bateryjnie.
+## Components Used
+* Microcontroller: FireBeetle ESP32-E
+* Display: Philips PCF8574 LCD 2x16 with I2C converter LCM1602
+* Battery: 18650 Li-Ion XTAR with a capacity of 2200 mAh and a nominal voltage of 3.7V
+* Soil Moisture Sensor: MOD-01588
+* Light Intensity Sensor: Resistor-based LDR – Okystar
+* Distance Sensor: Ultrasonic HC-SR04
+* Water Pump: Small submersible water pump powered by 3V – 6V
+* Bipolar NPN Transistor: 2N2222A
+* Resistor: 2.2k Ohm
 
 
 
-## Wykorzystane elementy
-* Mikrokontroler FireBeetle ESP32-E
-* Wyświetlacz Philips PCF8574 LCD 2x16 z konwerterem I2C LCM1602
-* Ogniwo 18650 Li-Ion XTAR o pojemności 2200 mAh i napięciu nominalnym 3,7V
-* Czujnik wilgotności gleby MOD-01588
-* Czujnik natężenia światła LDR rezystancyjny – Okystar
-* Czujnik odległości ultradźwiękowy HC-SR04
-* Pompa wodna - mała, zanurzalna pompka wodną zasilana napięciem 3V – 6V
-* Tranzystor bipolarny NPN 2N2222A
-* Rezystor 2.2k Ohm
+## Schematic
+![SCHEMATIC](https://github.com/OliwiaGowor/Smart-pot-web-app/assets/72342415/ed9fe84f-5cba-413c-98f7-92ccb403ef84)
 
 
 
-## Obsługa
-### Urządzenie
-  System jest prosty w obsłudze i może pracować bez większej ingerencji ze strony użytkownika przez okres czasu ograniczony przez pojemność używanego naczynia z wodą oraz, w przypadku braku prądu, pojemność i poziom naładowania ogniwa. 
-Aby układ działał prawidłowo, należy upewnić się czy wszystkie części są podłączone prawidłowo. Następnie czujnik wilgotności oraz silikonową rurkę od pompki należy wbić do gleby w doniczce z rośliną, a samą pompkę zanurzyć w naczyniu z wodą do podlewania kwiatów. Bezpośrednio nad naczyniem z wodą należy zamontować czujnik odległości. Czujnik natężenia światła ułożyć w takiej pozycji, aby bez zakłóceń monitorował stopień nasłonecznienia rośliny (nie układać pod przedmiotami, które zaburzają dostęp światła do czujnika np. pod parapetem). W celu uzyskania dostępu do aplikacji webowej, pozwalającej zdalnie sterować urządzeniem oraz w celu otrzymywania powiadomień e-mail niezbędne jest także przygotowanie urządzenia zapewniającego połączenie internetowe poprzez Wi-Fi. Nazwę sieci, hasło oraz dane skrzynki mailowej należy uzupełnić w kodzie programu Następnie należy podłączyć urządzenie do prądu oraz koszyka z ogniwem. Jeśli wszystko zostało podłączone prawidłowo zaświeci się wyświetlacz LCD, pokazujący najpierw stan połączenia z internetem oraz adres IP, który należy wpisać w przeglądarce internetowej, a następnie aktualne parametry. Na e-mail zostanie wysłane powiadomienie o uruchomieniu urządzenia, a następnie co ustalony czas wysyłane będą powiadomienia z aktualnymi parametrami lub powiadomienia o włączeniu pompy wodnej.
+## Operation
+### Device
+  The system is user-friendly and can operate with minimal user intervention for a limited period of time, determined by the capacity of the water container in use and, in the event of a power outage, the capacity and charge level of the battery. To ensure proper operation of the system, make sure all parts are correctly connected. Then, insert the soil moisture sensor and the silicone tube from the pump into the soil in the plant pot, and immerse the pump itself in the water container for plant watering. Directly above the water container, mount the distance sensor. Position the light intensity sensor to monitor sunlight without obstructions (avoid placing it under objects that may block light access, e.g., under a windowsill). To access the web application for remote control of the device and to receive email notifications, prepare a device that provides internet connectivity via Wi-Fi. Fill in the network name, password, and email address details in the program code. Then, plug the device into the power source and the battery basket. If everything is correctly connected, the LCD display will light up, showing the internet connection status and IP address, which should be entered in a web browser, along with the current parameters. An email notification will be sent about the device activation, followed by periodic notifications with current parameters or notifications of the water pump activation.
 
-### Aplikacja Webowa
-  Aplikacja Webowa umożliwia sterowanie urządzeniem oraz monitorowanie jego aktualnego stanu z dowolnej przeglądarki internetowej. Warunkiem działania tej funkcji jest podłączenie urządzenia do tej samej sieci Wi-Fi co mikroprocesor. Adresem storny jest IP urządzenia, wyświetlane na ekranie LCD podczas jego uruchamiania. 
-Za pomocą aplikacji użytkownik może włączyć lub wyłączyć “tryb wyjazdowy (“away mode”), który odpowiada za wysyłanie powiadomień o aktualnym stanie rośliny za pomocą wiadomości e-mail. Istnieje możliwość ustawienia ich częstotliwości. Kolejną funkcją jest możliwość manualnego włączania oraz wyłączania pompki wodnej. Aby przełączyć się na manualne sterowanie pompką wodna należy ustawić minimalny pozom wilgotności na 0. W aplikacji wyświetlane parametry czujników w czasie rzeczywistym. Został zaimplementowany suwak do ustawiania minimalnego poziomu wilgotności gleby w doniczce, przy którym uruchamia się moduł nawadniający.
+### Web Application
+  The web application allows users to control the device and monitor its current status from any web browser. This function requires the device to be connected to the same Wi-Fi network as the microcontroller. The address is the device's IP address, displayed on the LCD screen during startup. The application allows users to enable or disable the "away mode," which sends email notifications about the plant's current status. Users can also set the notification frequency. Another function is the ability to manually turn the water pump on and off. To switch to manual water pump control, set the minimum humidity level to 0. The application displays sensor parameters in real-time. A slider is implemented to set the minimum soil humidity level at which the watering module is activated.
 
 
-## Oprogramowanie
-Kod programu napisano w języku C++ oraz przy pomocy HTML, CSS i Javascript w przypadku części Webowej i  podzielony jest na 6 plików:
+## Software
+  The program code is written in C++ and uses HTML, CSS, and JavaScript for the web part. It is divided into six files:
+
 
 ### Gsender.h
-  Jest to plik nagłówkowy, który zawiera deklarację klasy Gsender.
+  This is a header file that contains the declaration of the Gsender class.
 
 
 ### Gsender.cpp
-  Ten kod definiuje klasę Gsender, która umożliwia wysyłanie wiadomości e-mail za pomocą protokołu SMTP. Oto najważniejsze fragmenty kodu:
-* Metoda statyczna ```Instance()``` tworzy instancję klasy Gsender i zwraca wskaźnik do niej. Wykorzystuje wzorzec Singleton, aby upewnić się, że istnieje tylko jedna instancja klasy Gsender.
-* Metoda ```Subject(const char* subject)``` ustawia temat wiadomości. Usuwa poprzedni temat (jeśli istniał) i alokuje pamięć dla nowego tematu.
-* Metoda ```AwaitSMTPResponse(WiFiClientSecure &client, const String &resp, uint16_t timeOut)``` oczekuje na odpowiedź serwera SMTP. Sprawdza, czy klient otrzymuje odpowiedź od serwera w określonym czasie. Jeśli czas przekroczy limit, zwraca wartość false.
-* Metoda ```getLastResponce()``` zwraca ostatnią otrzymaną odpowiedź serwera SMTP.
-* Metoda ```getError()``` zwraca bieżący błąd (jeśli wystąpił) jako wskaźnik na stałą tablicę znaków.
-* Metoda ```Send(const String &to, const String &message)``` jest główną metodą do wysyłania wiadomości e-mail. Tworzy połączenie z serwerem SMTP, autoryzuje się, ustawia nagłówki wiadomości, wysyła treść wiadomości i zamyka połączenie.
+  This code defines the Gsender class, which allows sending email messages using the SMTP protocol. Here are the key parts of the code:
+* The static method  ```Instance()``` creates an instance of the Gsender class and returns a pointer to it. It uses the Singleton pattern to ensure that only one instance of the Gsender class exists.
+* The ```Subject(const char* subject)``` method sets the email subject. It removes the previous subject (if it existed) and allocates memory for the new subject.
+* The ```AwaitSMTPResponse(WiFiClientSecure &client, const String &resp, uint16_t timeOut)```  method waits for an SMTP server response. It checks if the client receives a response from the server within the specified time. If the time limit is exceeded, it returns false.
+* The ```getLastResponce()``` method returns the last received SMTP server response.
+* The ```getError()``` method returns the current error (if any) as a pointer to a constant character array.
+* The ```Send(const String &to, const String &message)``` method is the main method for sending email messages. It establishes a connection with the SMTP server, authenticates, sets message headers, sends the message content, and closes the connection.
 
 
 ### Message.h
-  Jest to plik nagłówkowy, który zawiera deklaracje funkcji sendInfo() i sendInfoPump().
+  This is a header file that contains the declarations of the ```sendInfo()``` and ```sendInfoPump()``` functions.
 
 
 ### Message.cpp
-  Ten kod zawiera dwie funkcje, ```sendInfo()``` i ```sendInfoPump()```, które wysyłają informacje przez e-mail. Oto opis najważniejszych fragmentów kodu:
-* Funkcja ```sendInfo()``` przyjmuje jako parametry adres e-mail, wilgotność, poziom oświetlenia i odległość od czujnika. Tworzony jest ciąg znaków message, do którego dodawane są informacje o wilgotności, poziomie oświetlenia i odległości. Następnie tworzony jest obiekt klasy Gsender i wywoływana jest funkcja ```Send()```, która wysyła wiadomość e-mail z danymi.
-* Funkcja ```sendInfoPump()``` przyjmuje jako parametry adres e-mail, stan pompy wodnej (włączona/wyłączona) i wilgotność. Podobnie jak w funkcji ```sendInfo()```, tworzony jest ciąg znaków message, do którego dodawane są informacje o stanie pompy wodnej i wilgotności. Następnie tworzony jest obiekt klasy Gsender i wywoływana jest funkcja ```Send()```, która wysyła wiadomość e-mail z danymi.
+  This code contains two functions, ```sendInfo()``` and ```sendInfoPump()```, which send information via email. Here's a description of the most important parts of the code:
+* The ```sendInfo()```function takes an email address, humidity, light level, and distance from a sensor as parameters. It creates a character string message to which information about humidity, light level, and distance is added. Then, an object of the Gsender class is created, and the  ```Send()``` function is called to send the email with the data.
+* The ```sendInfoPump()``` function takes an email address, the state of the water pump (on/off), and humidity as parameters. Similar to the ```sendInfo()``` function, it creates a character string message to which information about the water pump state and humidity is added. Then, an object of the Gsender class is created, and the ```Send()``` function is called to send the email with the data.
 
-Obie funkcje korzystają z klasy Gsender, której instancja jest pobierana za pomocą metody ```Instance()```. Klasa Gsender prawdopodobnie implementuje funkcjonalność wysyłania wiadomości e-mail.
+Both functions use the Gsender class, whose instance is obtained through the ```Instance()``` method. The Gsender class likely implements the functionality of sending email messages.
 
 ### index.h
-  Jest to plik nagłówkowy zawierający deklarację strony internetowej, napisanej przy pomocy HTML, CSS oraz JavaScript jako tablica znaków typu char. Zawiera treść strony internetowej w formie tzw. "raw literal" (znak R"rawliteral(' na początku i ')rawliteral" na końcu). Dzięki temu wszystkie znaki wewnątrz ciągu są traktowane dosłownie, bez potrzeby ucieczek (backslashes) dla znaków specjalnych.
-Istnieje kilka funkcji JavaScript zdefiniowanych w tagu <script>, które wykonują się po stronie przeglądarki:
-* ```togglePump(element)``` oraz ```toggleAwayMode(element)``` to funkcje, które wykorzystują obiekt XMLHttpRequest do wysłania żądania HTTP GET na odpowiednie ścieżki (/pump?state=1 lub /pump?state=0, /awayMode?state=1 lub /awayMode?state=0) w zależności od stanu przekazanego elementu (np. checkboxa). Wysyłając takie żądania, można włączać i wyłączać pompę lub tryb "away mode".
-* ```setAwayModeInterval()``` oraz ```setMinHumidity()``` funkcje te wykorzystują XMLHttpRequest do wysłania żądania HTTP GET na odpowiednią ścieżkę (/setHumidity?value=<wartość>) z wartością odczytaną z pewnych elementów na stronie. W ten sposób można ustawić pewne parametry, takie jak interwał trybu "away mode" czy minimalną wilgotność.
-* Trzy interwały (```setInterval(...)```) to fragmenty kodu JavaScript, które regularnie (co 2000 ms) wykonują żądania HTTP GET na różne ścieżki (/lightLvl, /humidity, /distance) i aktualizują zawartość odpowiednich elementów na stronie, takich jak poziom światła, wilgotność czy odległość.
+ This is a header file containing the declaration of the web page, written using HTML, CSS, and JavaScript as a character array. It includes the content of the web page in the form of a "raw literal" (starting with R"rawliteral( and ending with )rawliteral") so that all characters inside the string are treated literally without the need for escapes (backslashes). There are several JavaScript functions defined in the <script> tag, which execute on the browser side:
+* ```togglePump(element)``` and ```toggleAwayMode(element)``` are functions that use XMLHttpRequest to send HTTP GET requests to the appropriate paths (/pump?state=1 or /pump?state=0, /awayMode?state=1 or /awayMode?state=0) depending on the state of the passed element (e.g., a checkbox). By sending such requests, you can turn the water pump or "away mode" on and off.
+* ```setAwayModeInterval()``` and ```setMinHumidity()``` functions use XMLHttpRequest to send HTTP GET requests to the appropriate path (/setHumidity?value=<value>) with values obtained from certain elements on the page. This allows you to set parameters such as the "away mode" interval or minimum humidity.
+* Three intervals (```setInterval(...)```) are JavaScript code snippets that regularly (every 2000 ms) send HTTP GET requests to different paths (/lightLvl, /humidity, /distance) to update the content of relevant elements on the page, such as light level, humidity, or distance.
 
 ### smartPot.ino
-  Ten kod jest głównym programem dla mikrokontrolera ESP. Oto najważniejsze fragmenty kodu:
-* Zdefiniowana stała ```SOUND_SPEED``` reprezentuje prędkość dźwięku w centymetrach na mikrosekundę.
-* Zdefiniowane zmienne globalne, takie jak ```ssid``` i ```password```, które przechowują nazwę sieci WiFi i hasło, ```connection_state``` przechowuje stan połączenia, a ```reconnect_interval``` określa czas oczekiwania przed kolejną próbą połączenia z siecią WiFi. Innymi zmiennymi globalnymi są prędkość dźwięku (```SOUND_SPEED```), parametry wejściowe (```PARAM_INPUT_VALUE```, ```PARAM_INPUT_STATE```), minimalna wilgotność (```minHumidity```), czas trwania (w mikrosekundach) sygnału ultradźwiękowego w czujniku odległości (```duration```), interwały czasowe w programie (```counter```) zmienna (```awayMode```), która określa, czy tryb "away mode" jest aktywowany, interwał (w milisekundach) dla trybu "away mode" (```awayModeInterval```)
-* Zainicjalizowany obiekt klasy ```LiquidCrystal_I2C``` do obsługi wyświetlacza LCD.
-* Zainicjalizowany obiekt klasy ```AsyncWebServer``` o nazwie server nasłuchujący na porcie 80, co umożliwia obsługę żądań HTTP od przeglądarek internetowych.
-* Funkcja ```checkHumidity()``` sprawdza poziom wilgotności. Jeśli jest zbyt niski, włącza pompę wodną i wyświetla informacje na wyświetlaczu LCD. Co jakiś czas wysyła również informację o pompie wodnej.
-* Funkcja ```getLight()``` odczytuje poziom oświetlenia i zwraca odpowiednią wartość (ciemno, średnio, jasno).
-* Funkcja ```getDistance()``` mierzy odległość przy użyciu czujników ultradźwiękowych i zwraca wynik w centymetrach.
-* Funkcja ``````displayLight() wyświetla poziom oświetlenia na wyświetlaczu LCD i zwraca wartość jako ciąg znaków.
-* Funkcja ```processor()``` zastępuje miejsca zastępcze w kodzie HTML strony internetowej. Wstawia dane dynamiczne, takie jak stan trybu "away mode", poziom światła, wilgotność, odległość, stan pompki wodnej czy aktualny minimalny poziom wilgotności.
-* Funkcja ```handleAwayMode()``` obsługuje tryb "away mode" poprzez wysyłanie powiadomień na podstawie ustawionego interwału.
-* Funkcja ```WiFiConnect()``` nawiązuje połączenie z siecią WiFi na podstawie podanych nazwy SSID i hasła. Jeśli nie zostaną podane, używa domyślnych wartości.
-* Funkcja ```Awaits()``` oczekuje na połączenie z siecią WiFi, jeśli nie jest już nawiązane, w pętli próbuje ponownie połączyć się co pewien czas.
-* W funkcji ```setup()``` inicjalizowane są różne ustawienia, takie jak komunikacja szeregowa, piny wejściowe/wyjściowe, połączenie WiFi. Następnie tworzony jest obiekt Gsender (klasy do wysyłania wiadomości e-mail) i wysyłana jest wiadomość testowa. Konfiguruje ona także endpointy obsługujące różne żądania HTTP.
-* W funkcji ```loop()``` odbywa się główna pętla programu. Sprawdzane są parametry roślin (wilgotność, poziom oświetlenia, odległość od czujnika) i wyświetlane na wyświetlaczu LCD. Odbywa się także obsługa trybu “away mode”.
-
-Kod korzysta również z funkcji pomocniczych, takich jak sendInfoPump() i sendInfo(), które wysyłają wiadomości e-mail z informacjami o pompie wodnej oraz parametrach roślin.
-
+  This code is the main program for the ESP microcontroller. Here are the most important parts of the code:
+* The defined constant ```SOUND_SPEED``` represents the speed of sound in centimeters per microsecond.
+* Global variables, such as ```ssid``` and ```password``` (storing the WiFi network name and password), ```connection_state``` (storing the connection status), and ```reconnect_interval``` określa czas oczekiwania przed kolejną próbą połączenia z siecią WiFi. Innymi zmiennymi globalnymi są prędkość dźwięku (```SOUND_SPEED```), input parameters (```PARAM_INPUT_VALUE```, ```PARAM_INPUT_STATE```), minimum humidity (```minHumidity```), ultrasonic sensor signal duration in microseconds (```duration```), program intervals (```counter```), a variable (```awayMode```)that defines whether "away mode" is activated, and an interval (in milliseconds) for "away mode" (```awayModeInterval```).
+* An initialized object of the ```LiquidCrystal_I2C``` class for handling the LCD display.
+* An initialized object of the ```AsyncWebServer``` class named server listening on port 80, enabling the handling of HTTP requests from web browsers.
+* The ```checkHumidity()``` function checks the humidity level. If it's too low, it turns on the water pump and displays information on the LCD display. It also periodically sends water pump information.
+* The ```getLight()``` function reads the light level and returns the corresponding value (dark, medium, bright).
+* The ```getDistance()``` function measures distance using ultrasonic sensors and returns the result in centimeters.
+* The ```displayLight()``` function displays the light level on the LCD display and returns the value as a character string.
+* The ```processor()``` function substitutes placeholders in the HTML code of the web page. It inserts dynamic data such as the "away mode" status, light level, humidity, distance, water pump state, and current minimum humidity.
+* The ```handleAwayMode()``` function manages the "away mode" by sending notifications based on the set interval.
+* The ```WiFiConnect()``` function establishes a WiFi connection based on the provided SSID and password. If not provided, it uses default values.
+* The ```Awaits()``` o function waits for a WiFi connection, retrying to connect at intervals if not already connected.
+* In the  ```setup()``` function, various settings are initialized, such as serial communication, input/output pins, and WiFi connection. Then, an instance of Gsender (a class for sending email messages) is created, and a test message is sent. It also configures endpoints to handle different HTTP requests.
+* The ```loop()``` function contains the main program loop. It checks plant parameters (humidity, light level, distance from the sensor) and displays them on the LCD screen. It also handles the "away mode."
+The code also uses helper functions like ```sendInfoPump()``` and ```sendInfo()``` to send email messages with information about the water pump and plant parameters.
